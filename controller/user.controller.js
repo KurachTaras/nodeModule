@@ -1,9 +1,9 @@
-const { fileServices } = require('../service');
+const { userService } = require("../services");
 
 module.exports = {
     getAllUsers: async (req, res, next) => {
         try {
-            const users = await fileServices.reader();
+            const users = await userService.findByParams();
 
             res.json(users);
         } catch (e) {
@@ -11,44 +11,34 @@ module.exports = {
         }
     },
 
-    create: async (req, res, next) => {
+    getUserById: async (req, res, next) => {
         try {
-            const userInfo = req.body;
-            const users = await fileServices.reader();
+            const user = await userService.findByIdWithCars(req.user._id);
 
-            const newUser = {
-                name: userInfo.name,
-                age: userInfo.age,
-                id: users[users.length -1].id + 1
-            };
-            users.push(newUser);
-
-            await fileServices.writer(users);
-
-            res.status(201).json(newUser);
+            res.json(req.user);
         } catch (e) {
             next(e);
         }
     },
 
-    getUserById: (req, res, next) => {
+    createUser: async (req, res, next) => {
         try {
-            res.json(req.user);
+            const user = await userService.create(req.body);
+
+            res.status(201).json(user);
         } catch (e) {
-            next(e)
+            next(e);
         }
     },
 
     updateUser: async (req, res, next) => {
         try {
-            const { user, users, body } = req;
+            const newUserInfo = req.body;
+            const userId = req.params.userId;
 
-            const index = users.findIndex((u) => u.id === user.id);
-            users[index] = { ...users[index], ...body };
+            const user = await userService.updateOne(userId, newUserInfo);
 
-            await fileServices.writer(users);
-
-            res.status(201).json(users[index]);
+            res.status(201).json(user)
         } catch (e) {
             next(e);
         }
@@ -56,14 +46,9 @@ module.exports = {
 
     deleteUser: async (req, res, next) => {
         try {
-            const { user, users } = req;
+            await userService.deleteOne(req.params.userId);
 
-            const index = users.findIndex((u) => u.id === user.id);
-            users.splice(index, 1);
-
-            await fileServices.writer(users);
-
-            res.sendStatus(204);
+            res.status(204).json('Deleted')
         } catch (e) {
             next(e);
         }
