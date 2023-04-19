@@ -1,35 +1,35 @@
 const router = require('express').Router();
 
-const { userController } = require("../controller");
-const mdlwr = require("../middleware/user.middleware");
+const { userController } = require('../controller');
+const { userMiddleware } = require('../middleware/');
 
 router.get('/', userController.getAllUsers);
 
 router.post(
     '/',
-    mdlwr.isBodyValidCreate,
-    mdlwr.userNormalizator,
-    mdlwr.checkIsEmailUnique,
+    userMiddleware.isNewUserValid,
+    userMiddleware.checkIsEmailUnique,
     userController.createUser
 );
 
 router.get(
     '/:userId',
-    mdlwr.checkIsUserExist,
+    userMiddleware.isUserIdValid,
+    userMiddleware.getUserDynamically('userId', 'params', '_id'),
     userController.getUserById
 );
 
 router.put(
     '/:userId',
-    mdlwr.isBodyValidUpdate,
-    mdlwr.userNormalizator,
-    mdlwr.checkIsUserExist,
+    userMiddleware.isUserIdValid,
+    userMiddleware.isEditUserValid,
+    userMiddleware.getUserDynamically('userId', 'params', '_id'),
     userController.updateUser
 );
 
 router.delete(
     '/:userId',
-    mdlwr.checkIsUserExist,
+    userMiddleware.isUserIdValid,
     userController.deleteUser
 );
 

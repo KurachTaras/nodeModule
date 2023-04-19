@@ -12,4 +12,13 @@ module.exports = {
     create: async (carInfo) => {
         return Car.create(carInfo);
     },
+
+    deleteOne: async (carId) => {
+        return Car.deleteOne({ _id: carId });
+    },
+
+    findOne: async (dbField, fieldToSearch) => {
+        return Car.findOne( { [dbField]: fieldToSearch } );
+    }
+
 };

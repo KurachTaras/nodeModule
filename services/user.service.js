@@ -9,32 +9,37 @@ module.exports = {
         return User.findOne(filter);
     },
 
+    findOne: async (dbField, fieldToSearch) => {
+        return User.findOne({[dbField]: fieldToSearch});
+    },
+
     updateOne: async (userId, newUserInfo) => {
         return User.findByIdAndUpdate(userId, newUserInfo);
     },
 
-    findByIdWithCars: async (userId) => {
-       const userWithCars = await User.aggregate([
-           {
-               $match : {
-                   _id: userId
-               }
-           },
-           {
-               $lookup: {
-                   from: 'cars',
-                   localField: '_id',
-                   foreignField: 'user',
-                   as: 'cars'
-               }
-           }
-       ]);
+    findByIdWithCars: async (id) => {
+        const res = await User.aggregate([
+            {
+                $match: {
+                    _id: id
+                }
+            },
+            {
+                $lookup: {
+                    from: 'cars',
+                    localField: '_id',
+                    foreignField: 'user',
+                    as: 'cars',
+                }
+            }
+        ]);
 
-       return userWithCars[0];
+        console.log(res[0]);
+        return res[0];
     },
 
-    create: async (userInfo) => {
-        return User.create(userInfo);
+    create: async (userInfo, hashPassword) => {
+        return User.create({...userInfo, password: hashPassword});
     },
 
     deleteOne: async (userid) => {

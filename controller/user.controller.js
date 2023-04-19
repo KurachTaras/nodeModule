@@ -1,4 +1,4 @@
-const { userService } = require("../services");
+const { userService, oauthService } = require("../services");
 
 module.exports = {
     getAllUsers: async (req, res, next) => {
@@ -15,7 +15,7 @@ module.exports = {
         try {
             const user = await userService.findByIdWithCars(req.user._id);
 
-            res.json(req.user);
+            res.json(user);
         } catch (e) {
             next(e);
         }
@@ -23,7 +23,9 @@ module.exports = {
 
     createUser: async (req, res, next) => {
         try {
-            const user = await userService.create(req.body);
+            const hashPassword = await oauthService.hashPassword(req.body.password);
+
+            const user = await userService.create(req.body, hashPassword);
 
             res.status(201).json(user);
         } catch (e) {
